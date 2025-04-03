@@ -24,11 +24,9 @@ void q_free(struct list_head *head)
 
     element_t *iter = NULL;
     element_t *safe = NULL;
-    list_for_each_entry_safe (iter, safe, head, list) {
-        if (iter->value)
-            free(iter->value);
+    list_for_each_entry_safe(iter, safe, head, list) {
         list_del(&iter->list);
-        free(iter);
+        q_release_element(iter);
     }
     free(head);
 }
@@ -82,7 +80,6 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     element_t *element = list_first_entry(head, element_t, list);
     if (sp && element->value) {
         strncpy(sp, element->value, bufsize);
-        element->value = NULL;
     }
     list_del(&element->list);
 
@@ -98,7 +95,6 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     element_t *element = list_last_entry(head, element_t, list);
     if (sp && element->value) {
         strncpy(sp, element->value, bufsize);
-        element->value = NULL;
     }
     list_del(&element->list);
 
@@ -114,7 +110,7 @@ int q_size(struct list_head *head)
     int len = 0;
     struct list_head *li;
 
-    list_for_each (li, head)
+    list_for_each(li, head)
         len++;
 
     return len;
@@ -153,7 +149,7 @@ bool q_delete_dup(struct list_head *head)
     element_t *next = NULL;
     bool dup = false;
 
-    list_for_each_entry_safe (iter, next, head, list) {
+    list_for_each_entry_safe(iter, next, head, list) {
         if (&next->list != head && !strcmp(iter->value, next->value)) {
             list_del(&iter->list);
             dup = true;
