@@ -4,6 +4,10 @@
 
 #include "queue.h"
 
+#define reverse_list_for_each_safe(node, safe, head)             \
+    for (node = (head)->prev, safe = node->prev; node != (head); \
+         node = safe, safe = node->prev)
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -182,7 +186,20 @@ void q_swap(struct list_head *head)
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head || list_empty(head))
+        return;
+
+    struct list_head *iter;
+    struct list_head *safe;
+
+    reverse_list_for_each_safe(iter, safe, head)
+    {
+        if (safe != head->prev)
+            list_move_tail(iter, head);
+    }
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
